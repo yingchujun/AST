@@ -3,8 +3,6 @@ const path = require('path')
 const parser = require('@babel/parser')
 const generator = require('@babel/generator').default
 const types = require('@babel/types')
-const { type } = require('os')
-const { count } = require('console')
 const traverse = require('@babel/traverse').default
 
 let jscode = fs.readFileSync(path.join(__dirname + '/old_jscode.js'), { encoding: 'utf-8' })
@@ -207,7 +205,8 @@ traverse(ast, {
 		}
 	}
 })
-var co = 1
+
+// 控制流平坦化
 traverse(ast, {
 	ForStatement(path) {
 		// 判断是否是switch
@@ -240,7 +239,6 @@ traverse(ast, {
 		}
 
 
-		co += 1
 		// 跟存放case值的数组还原执行流程
 		let nodeArr = [] // 还原流程数组
 		for ( let _ in cases) {
@@ -260,13 +258,12 @@ traverse(ast, {
 			path.remove()
 			prevSiblingPath.remove()
 		} catch (error) {
-			console.log(path.parentPath.parentPath.toString())
 		}
 
 	}
 })
-console.log(co - 1)
 
+// unicode转文字
 traverse(ast, {
 	NumericLiteral({ node }) {
 		if (node.extra && /^0[obx]/i.test(node.extra.raw)) {
@@ -279,6 +276,8 @@ traverse(ast, {
 		}
 	},
 });
+
+
 
 
 let code = generator(ast, {
